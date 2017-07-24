@@ -1,0 +1,26 @@
+{
+  "name": "dat-nexus-api",
+  "version": "1.0.0",
+  "description": "API for interacting with Dat Nexus profiles.",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "standard --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beakerbrowser/dat-nexus-api.git"
+  },
+  "keywords": [
+    "dat",
+    "profile",
+    "site"
+  ],
+  "author": "Paul Frazee <pfrazee@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/beakerbrowser/dat-nexus-api/issues"
+  },
+  "homepage": "https://github.com/beakerbrowser/dat-nexus-api#readme"
+}
