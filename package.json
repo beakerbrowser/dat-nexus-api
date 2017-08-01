@@ -3,10 +3,16 @@
   "version": "1.0.0",
   "description": "API for interacting with Dat Nexus profiles.",
   "main": "index.js",
-  "dependencies": {},
-  "devDependencies": {},
+  "dependencies": {
+    "injestdb": "^1.1.0"
+  },
+  "devDependencies": {
+    "ava": "^0.21.0",
+    "node-dat-archive": "^1.0.1",
+    "tempy": "^0.1.0"
+  },
   "scripts": {
-    "test": "standard --fix"
+    "test": "ava -s test/*.js && standard --fix"
   },
   "repository": {
     "type": "git",
