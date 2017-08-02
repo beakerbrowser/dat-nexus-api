@@ -227,9 +227,12 @@ exports.open = async function (userArchive) {
       return this.getBroadcastsRecordSet(opts).count()
     },
 
-    getBroadcast (record) {
+    async getBroadcast (record) {
       const recordUrl = coerce.recordUrl(record)
-      return db.broadcasts.get(recordUrl)
+      record = await db.broadcasts.get(recordUrl)
+      record.author = await this.getProfile(record._origin)
+      record.votes = await this.countVotes(recordUrl)
+      return record
     },
 
     // votes api
