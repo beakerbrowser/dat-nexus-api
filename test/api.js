@@ -8,7 +8,7 @@ var bob
 var carla
 
 test('construct some archives with a guest session', async t => {
-  await NexusAPI.open()
+  var session = await NexusAPI.open()
 
   // create the archives
   ;[alice, bob, carla] = await Promise.all([
@@ -18,28 +18,28 @@ test('construct some archives with a guest session', async t => {
   ])
 
   // add to nexus
-  await NexusAPI.addArchives([alice, bob, carla])
+  await session.addArchives([alice, bob, carla])
 
   // write profiles
-  await NexusAPI.setProfile(alice, {
+  await session.setProfile(alice, {
     name: 'Alice',
     bio: 'A cool hacker girl',
     avatar: 'alice.png',
     follows: [{name: 'Bob', url: bob.url}, {name: 'Carla', url: carla.url}]
   })
-  await NexusAPI.setProfile(bob, {
+  await session.setProfile(bob, {
     name: 'Bob',
     bio: 'A cool hacker guy',
     avatar: 'bob.png'
   })
-  await NexusAPI.follow(bob, alice, 'Alice')
-  await NexusAPI.setProfile(carla, {
+  await session.follow(bob, alice, 'Alice')
+  await session.setProfile(carla, {
     name: 'Carla'
   })
-  await NexusAPI.follow(carla, alice)
+  await session.follow(carla, alice)
 
   // verify data
-  t.deepEqual(await NexusAPI.getProfile(alice), {
+  t.deepEqual(await session.getProfile(alice), {
     _origin: alice.url,
     _url: alice.url + '/profile.json',
     name: 'Alice',
@@ -48,7 +48,7 @@ test('construct some archives with a guest session', async t => {
     followUrls: [bob.url, carla.url],
     follows: [{name: 'Bob', url: bob.url}, {name: 'Carla', url: carla.url}]
   })
-  t.deepEqual(await NexusAPI.getProfile(bob), {
+  t.deepEqual(await session.getProfile(bob), {
     _origin: bob.url,
     _url: bob.url + '/profile.json',
     name: 'Bob',
@@ -57,7 +57,7 @@ test('construct some archives with a guest session', async t => {
     followUrls: [alice.url],
     follows: [{name: 'Alice', url: alice.url}]
   })
-  t.deepEqual(await NexusAPI.getProfile(carla), {
+  t.deepEqual(await session.getProfile(carla), {
     _origin: carla.url,
     _url: carla.url + '/profile.json',
     name: 'Carla',
@@ -67,5 +67,5 @@ test('construct some archives with a guest session', async t => {
     follows: [{url: alice.url, name: null}]
   })
 
-  await NexusAPI.close()
+  await session.close()
 })
