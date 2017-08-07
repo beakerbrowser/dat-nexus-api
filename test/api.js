@@ -1,3 +1,4 @@
+require('injestdb/node')
 const test = require('ava')
 const DatArchive = require('node-dat-archive')
 const tempy = require('tempy')
