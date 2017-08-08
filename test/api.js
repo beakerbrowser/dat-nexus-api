@@ -3,6 +3,7 @@ const test = require('ava')
 const DatArchive = require('node-dat-archive')
 const tempy = require('tempy')
 const NexusAPI = require('../')
+const fs = require('fs')
 
 var alice
 var bob
@@ -30,9 +31,13 @@ test('construct some archives with a guest session', async t => {
   })
   await session.setProfile(bob, {
     name: 'Bob',
-    bio: 'A cool hacker guy',
-    avatar: 'bob.png'
+    avatar: 'bob.png',
+    bio: 'A cool hacker guy'
   })
+
+  const fd = fs.readFileSync('avatar.jpg').buffer
+
+  await session.setAvatar(bob, fd, 'jpg')
   await session.follow(bob, alice, 'Alice')
   await session.setProfile(carla, {
     name: 'Carla'
@@ -40,6 +45,7 @@ test('construct some archives with a guest session', async t => {
   await session.follow(carla, alice)
 
   // verify data
+  t.truthy(await bob.stat('/avatar.jpg'))
   t.deepEqual(await session.getProfile(alice), {
     _origin: alice.url,
     _url: alice.url + '/profile.json',
@@ -54,7 +60,7 @@ test('construct some archives with a guest session', async t => {
     _url: bob.url + '/profile.json',
     name: 'Bob',
     bio: 'A cool hacker guy',
-    avatar: '/bob.png',
+    avatar: '/avatar.jpg',
     followUrls: [alice.url],
     follows: [{name: 'Alice', url: alice.url}]
   })
