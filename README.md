@@ -13,7 +13,7 @@ var NexusAPI = require('dat-nexus-api')
 
 // create a db instance
 var db = await NexusAPI.open(/* cache session */)
-var db = await NexusAPI.open(mainUserArchive)
+var db = await NexusAPI.open(mainUserArchive) // mainUserArchive is a DatArchive instance
 
 // profile data
 // =
@@ -38,7 +38,7 @@ await db.pruneUnfollowedArchives(mainUserArchive) // remove archives from the db
 await db.follow(userArchive, targetUser, targetUserName?)
 await db.unfollow(userArchive, targetUser)
 
-db.getFollowersRecordSet(userArchive) // get InjestRecordSet for a followers query
+db.getFollowersQuery(userArchive) // get InjestRecordSet for a followers query
 await db.listFollowers(userArchive) // list users in db that follow the user
 await db.countFollowers(userArchive) // count users in db that follow the user
 await db.listFriends(userArchive) // list users in db that mutually follow the user
@@ -58,7 +58,7 @@ await db.broadcast(userArchive, {
 // =
 
 // get InjestRecordSet for a broadcasts query
-db.getBroadcastsRecordSet({
+db.getBroadcastsQuery({
   author: url | DatArchive,
   after: timestamp,
   before: timestamp,
@@ -69,12 +69,12 @@ db.getBroadcastsRecordSet({
 
 // get broadcast records
 await db.listBroadcasts({
-  // all opts from getBroadcastsRecordSet
+  // all opts from getBroadcastsQuery
   fetchAuthor: boolean,
   countVotes: boolean
 })
 
-await db.countBroadcasts(/* same opts for getBroadcastsRecordSet */)
+await db.countBroadcasts(/* same opts for getBroadcastsQuery */)
 await db.getBroadcast(url)
 
 // votes
@@ -84,7 +84,7 @@ await db.vote (userArchive, {vote, subject})
 // vote should be -1, 0, or 1
 // subject should be a dat url
 
-db.getVotesRecordSet(subject)
+db.getVotesQuery(subject)
 await db.listVotes(subject)
 
 // this returns {up: number, down: number, value: number, upVoters: array of urls, currentUsersVote: number}

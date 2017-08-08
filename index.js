@@ -129,17 +129,17 @@ exports.open = async function (userArchive) {
       await db.removeArchive(target)
     },
 
-    getFollowersRecordSet (archive) {
+    getFollowersQuery (archive) {
       var archiveUrl = coerce.archiveUrl(archive)
       return db.profile.where('followUrls').equals(archiveUrl)
     },
 
     listFollowers (archive) {
-      return this.getFollowersRecordSet(archive).toArray()
+      return this.getFollowersQuery(archive).toArray()
     },
 
     countFollowers (archive) {
-      return this.getFollowersRecordSet(archive).count()
+      return this.getFollowersQuery(archive).count()
     },
 
     async isFollowing (archiveA, archiveB) {
@@ -182,7 +182,7 @@ exports.open = async function (userArchive) {
       return db.broadcasts.add(archive, {text, threadRoot, threadParent, createdAt})
     },
 
-    getBroadcastsRecordSet ({author, after, before, offset, limit, type, reverse} = {}) {
+    getBroadcastsQuery ({author, after, before, offset, limit, type, reverse} = {}) {
       var query = db.broadcasts
       if (author) {
         author = coerce.archiveUrl(author)
@@ -204,7 +204,7 @@ exports.open = async function (userArchive) {
 
     async listBroadcasts (opts) {
       var promises = []
-      var broadcasts = await this.getBroadcastsRecordSet(opts).toArray()
+      var broadcasts = await this.getBroadcastsQuery(opts).toArray()
       if (opts && opts.fetchAuthor) {
         let profiles = {}
         promises = promises.concat(broadcasts.map(async b => {
@@ -224,7 +224,7 @@ exports.open = async function (userArchive) {
     },
 
     countBroadcasts (opts) {
-      return this.getBroadcastsRecordSet(opts).count()
+      return this.getBroadcastsQuery(opts).count()
     },
 
     async getBroadcast (record) {
@@ -248,17 +248,17 @@ exports.open = async function (userArchive) {
       return db.votes.add(archive, {vote, subject, createdAt})
     },
 
-    getVotesRecordSet (subject) {
+    getVotesQuery (subject) {
       return db.votes.where('subject').equals(coerce.voteSubject(subject))
     },
 
     listVotes (subject) {
-      return this.getVotesRecordSet(subject).toArray()
+      return this.getVotesQuery(subject).toArray()
     },
 
     async countVotes (subject) {
       var res = {up: 0, down: 0, value: 0, upVoters: [], currentUsersVote: 0}
-      await this.getVotesRecordSet(subject).each(record => {
+      await this.getVotesQuery(subject).each(record => {
         res.value += record.vote
         if (record.vote === 1) {
           res.upVoters.push(record._origin)
