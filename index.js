@@ -95,6 +95,17 @@ exports.open = async function (userArchive) {
       return db.profile.upsert(archiveUrl, profile)
     },
 
+    async setAvatar (archive, imgData, extension) {
+      archive = coerce.archive(archive)
+      const filename = `avatar.${extension}`
+
+      if (archive) {
+        await archive.writeFile(filename, imgData)
+        await archive.commit()
+      }
+      return db.profile.upsert(archive, {avatar: filename})
+    },
+
     async follow (archive, target, name) {
       // update the follow record
       var archiveUrl = coerce.archiveUrl(archive)
@@ -236,7 +247,7 @@ exports.open = async function (userArchive) {
       if (opts.fetchReplies) {
         promises = promises.concat(broadcasts.map(async b => {
           b.replies = await this.listBroadcasts({fetchAuthor: true}, this.getRepliesQuery(b._url))
-        }))        
+        }))
       }
 
       await Promise.all(promises)
@@ -297,4 +308,3 @@ exports.open = async function (userArchive) {
     }
   }
 }
-
