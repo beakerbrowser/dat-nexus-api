@@ -174,15 +174,14 @@ exports.open = async function (userArchive) {
 
     broadcast (archive, {text, threadRoot, threadParent}) {
       text = coerce.string(text)
-      const threadRootUrl = threadRoot ? coerce.recordUrl(threadRoot) : undefined
       const threadParentUrl = threadParent ? coerce.recordUrl(threadParent) : undefined
+      const threadRootUrl = threadRoot ? coerce.recordUrl(threadRoot) : threadRootUrl
       if (!text) throw new Error('Must provide text')
-      if (!!threadRootUrl !== !!threadParentUrl) throw new Error('Must provide both threadRoot and threadParent or neither')
       const createdAt = Date.now()
       return db.broadcasts.add(archive, {text, threadRoot, threadParent, createdAt})
     },
 
-    getBroadcastsQuery ({author, after, before, offset, limit, type, reverse} = {}) {
+    getBroadcastsQuery ({author, after, before, offset, limit, reverse} = {}) {
       var query = db.broadcasts
       if (author) {
         author = coerce.archiveUrl(author)
@@ -202,10 +201,21 @@ exports.open = async function (userArchive) {
       return query
     },
 
-    async listBroadcasts (opts) {
+    getRepliesQuery (threadRootUrl, {offset, limit, reverse} = {}) {
+      var query = db.broadcasts.where('threadRoot').equals('threadRootUrl')
+      if (offset) query = query.offset(offset)
+      if (limit) query = query.limit(limit)
+      if (reverse) query = query.reverse()
+      return query
+    },
+
+    async listBroadcasts (opts = {}, query) {
       var promises = []
-      var broadcasts = await this.getBroadcastsQuery(opts).toArray()
-      if (opts && opts.fetchAuthor) {
+      query = query || this.getBroadcastsQuery(opts)
+      var broadcasts = await query.toArray()
+
+      // fetch author profile
+      if (opts.fetchAuthor) {
         let profiles = {}
         promises = promises.concat(broadcasts.map(async b => {
           if (!profiles[b._origin]) {
@@ -214,17 +224,28 @@ exports.open = async function (userArchive) {
           b.author = await profiles[b._origin]
         }))
       }
-      if (opts && opts.countVotes) {
+
+      // tabulate votes
+      if (opts.countVotes) {
         promises = promises.concat(broadcasts.map(async b => {
           b.votes = await this.countVotes(b._url)
         }))
       }
+
+      // fetch replies
+      if (opts.fetchReplies) {
+        promises = promises.concat(broadcasts.map(async b => {
+          b.replies = await this.listBroadcasts({fetchAuthor: true}, this.getRepliesQuery(b._url))
+        }))        
+      }
+
       await Promise.all(promises)
       return broadcasts
     },
 
-    countBroadcasts (opts) {
-      return this.getBroadcastsQuery(opts).count()
+    countBroadcasts (opts, query) {
+      query = query || this.getBroadcastsQuery(opts)
+      return query.count()
     },
 
     async getBroadcast (record) {
@@ -232,6 +253,7 @@ exports.open = async function (userArchive) {
       record = await db.broadcasts.get(recordUrl)
       record.author = await this.getProfile(record._origin)
       record.votes = await this.countVotes(recordUrl)
+      record.replies = await this.listBroadcasts({fetchAuthor: true}, this.getRepliesQuery(recordUrl))
       return record
     },
 

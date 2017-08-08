@@ -51,7 +51,14 @@ await db.isFriendsWith(archiveA, archiveB) // => true
 // =
 
 await db.broadcast(userArchive, {
-  text: 'Hello, world!'
+  text: 'Hello, world!',
+})
+
+// posting a reply
+await db.broadcast(userArchive, {
+  text: 'Hello, world!',
+  threadParent: parent._url, // url of message replying to
+  threadRoot: top._url // url of topmost ancestor message - defaults to threadParent's value
 })
 
 // reading the feed
@@ -69,8 +76,9 @@ db.getBroadcastsQuery({
 
 // get broadcast records
 await db.listBroadcasts({
-  // all opts from getBroadcastsQuery
+  // all opts from getBroadcastsQuery, plus:
   fetchAuthor: boolean,
+  fetchReplies: boolean,
   countVotes: boolean
 })
 
