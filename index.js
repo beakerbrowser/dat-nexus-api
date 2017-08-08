@@ -186,7 +186,7 @@ exports.open = async function (userArchive) {
     broadcast (archive, {text, threadRoot, threadParent}) {
       text = coerce.string(text)
       threadParent = threadParent ? coerce.recordUrl(threadParent) : undefined
-      threadRoot = threadRoot ? coerce.recordUrl(threadRoot) : threadRoot
+      threadRoot = threadRoot ? coerce.recordUrl(threadRoot) : threadParent
       if (!text) throw new Error('Must provide text')
       const createdAt = Date.now()
       return db.broadcasts.add(archive, {text, threadRoot, threadParent, createdAt})
