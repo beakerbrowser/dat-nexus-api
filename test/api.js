@@ -45,6 +45,7 @@ test('construct some archives with a guest session', async t => {
   await session.follow(carla, alice)
 
   // verify data
+  t.truthy(await bob.stat('/avatar.jpg'))
   t.deepEqual(await session.getProfile(alice), {
     _origin: alice.url,
     _url: alice.url + '/profile.json',
