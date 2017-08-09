@@ -213,7 +213,7 @@ exports.open = async function (userArchive) {
     },
 
     getRepliesQuery (threadRootUrl, {offset, limit, reverse} = {}) {
-      var query = db.broadcasts.where('threadRoot').equals('threadRootUrl')
+      var query = db.broadcasts.where('threadRoot').equals(threadRootUrl)
       if (offset) query = query.offset(offset)
       if (limit) query = query.limit(limit)
       if (reverse) query = query.reverse()
